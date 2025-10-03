@@ -254,6 +254,18 @@ public class manangeUser {
         System.out.print("Create Username: ");
         String uname = Main.inp.nextLine();
         
+        while(true){
+            String qry = "SELECT * FROM tbl_user WHERE u_username = ?";
+            java.util.List<java.util.Map<String, Object>> result = con.fetchRecords(qry, uname);
+
+            if (result.isEmpty()) {
+                break;
+            } else {
+                System.out.print("Username already exists, Enter other Username: ");
+                uname = Main.inp.next();
+            }
+        }
+        
         System.out.print("Create Password: ");
         String pass = Main.inp.nextLine();
         
