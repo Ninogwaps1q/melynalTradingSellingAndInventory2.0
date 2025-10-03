@@ -163,7 +163,7 @@ public class config {
                         userData.put("role", rs.getString("u_role"));
                         userData.put("fullname", rs.getString("u_fullname"));
 
-                        System.out.println("Login successful");
+                        System.out.println("\nLogin successful");
                         System.out.println("Welcome back " + rs.getString("u_fullname") + " | Role: " + rs.getString("u_role"));
                     } else {
                         System.out.println("Your account is still pending. Please wait for admin approval.");

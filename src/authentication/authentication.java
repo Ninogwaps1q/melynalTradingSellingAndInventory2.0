@@ -63,6 +63,7 @@ public class authentication {
        
         String sql = "INSERT INTO tbl_user (u_fullname, u_username, u_password, u_email, u_contact, u_role, u_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         con.addRecord(sql, fname, uname, pass, email, contact, role, "Pending");
+        Main.main(null);
     }
     
     public void login(){
@@ -88,12 +89,12 @@ public class authentication {
             if (userData != null) {
                 loggedIn = true;
                 String role = (String) userData.get("role");
-                int userId = (int) userData.get("id");   // ✅ now we have the cashier’s ID
-
+                int userId = (int) userData.get("id");  
+                
                 if (role.equalsIgnoreCase("Admin")) {
                     Main.adminDashboard(userId);
                 } else if (role.equalsIgnoreCase("Cashier")) {
-                    Main.cashierDashboard(userId);   // ✅ pass ID to cashier dashboard
+                    Main.cashierDashboard(userId); 
                 }
             } else {
                 attempts++;

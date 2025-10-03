@@ -77,7 +77,7 @@ public class manageProduct {
         java.util.List<java.util.Map<String, Object>> checkResult = con.fetchRecords(checkQry, did);
 
         if (checkResult.isEmpty()) {
-            System.out.println("Invalid ID. User not found.");
+            System.out.println("Invalid ID. Product not found.");
             return;
         }
         
@@ -102,7 +102,7 @@ public class manageProduct {
         java.util.List<java.util.Map<String, Object>> checkResult = con.fetchRecords(checkQry, uid);
 
         if (checkResult.isEmpty()) {
-            System.out.println("Invalid ID. User not found.");
+            System.out.println("Invalid ID. Product not found.");
             return;
         }
         

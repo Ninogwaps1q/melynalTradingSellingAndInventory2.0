@@ -291,7 +291,7 @@ public class manangeUser {
             role = "Cashier";
         }
         
-        System.out.println("Your Successfully Register, Role " +role+ "! Wait for the approaval");
+        System.out.println("Your Successfully Added, Role " +role+ "! Wait for the approaval");
        
         String sql = "INSERT INTO tbl_user (u_fullname, u_username, u_password, u_email, u_contact, u_role, u_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         con.addRecord(sql, fname, uname, pass, email, contact, role, "Pending");

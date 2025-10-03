@@ -19,7 +19,7 @@ public class Main {
         
         authentication au = new authentication();
         
-        System.out.println("WELCOME TO MELYNAL TRADING SYSTEM");
+        System.out.println("\nWELCOME TO MELYNAL TRADING SYSTEM");
         System.out.println("1. Login");
         System.out.println("2. Register");
         System.out.println("3. Exit");
@@ -102,7 +102,7 @@ public class Main {
         
         String res;
         do{
-            System.out.println("------------------------");
+            System.out.println("\n------------------------");
             System.out.println("=== CASHIER DASHBOARD ===");
             System.out.println("------------------------");
 
