@@ -2,9 +2,17 @@
 package config;
 
 import Main.Main;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class config {
     
@@ -55,7 +63,6 @@ public class config {
 }
     
     public void viewRecords(String sqlQuery, String[] columnHeaders, String[] columnNames) {
-        // Check that columnHeaders and columnNames arrays are the same length
         if (columnHeaders.length != columnNames.length) {
             System.out.println("Error: Mismatch between column headers and column names.");
             return;
@@ -65,31 +72,63 @@ public class config {
              PreparedStatement pstmt = conn.prepareStatement(sqlQuery);
              ResultSet rs = pstmt.executeQuery()) {
 
-            // Print the headers dynamically
-            StringBuilder headerLine = new StringBuilder();
-            headerLine.append("--------------------------------------------------------------------------------\n| ");
-            for (String header : columnHeaders) {
-                headerLine.append(String.format("%-20s | ", header)); // Adjust formatting as needed
+            int columnCount = columnNames.length;
+            java.util.List<String[]> rows = new java.util.ArrayList<>();
+            int[] colWidths = new int[columnCount];
+
+            for (int i = 0; i < columnCount; i++) {
+                colWidths[i] = columnHeaders[i].length();
             }
-            headerLine.append("\n--------------------------------------------------------------------------------");
 
-            System.out.println(headerLine.toString());
-
-            // Print the rows dynamically based on the provided column names
             while (rs.next()) {
-                StringBuilder row = new StringBuilder("| ");
-                for (String colName : columnNames) {
-                    String value = rs.getString(colName);
-                    row.append(String.format("%-20s | ", value != null ? value : "")); // Adjust formatting
+                String[] row = new String[columnCount];
+                for (int i = 0; i < columnCount; i++) {
+                    String value = rs.getString(columnNames[i]);
+                    if (value == null) value = "";
+                    row[i] = value;
+                    if (value.length() > colWidths[i]) {
+                        colWidths[i] = value.length();
+                    }
                 }
-                System.out.println(row.toString());
+                rows.add(row);
             }
-            System.out.println("--------------------------------------------------------------------------------");
+
+            for (int i = 0; i < colWidths.length; i++) {
+                colWidths[i] += 2;
+            }
+
+            StringBuilder separator = new StringBuilder();
+            separator.append("-");
+            for (int width : colWidths) {
+                for (int i = 0; i < width + 3; i++) {
+                    separator.append("-");
+                }
+            }
+            separator.append("-");
+
+            System.out.println(separator);
+            StringBuilder headerLine = new StringBuilder("| ");
+            for (int i = 0; i < columnCount; i++) {
+                headerLine.append(String.format("%-" + colWidths[i] + "s | ", columnHeaders[i]));
+            }
+            System.out.println(headerLine);
+            System.out.println(separator);
+
+            for (String[] row : rows) {
+                StringBuilder rowLine = new StringBuilder("| ");
+                for (int i = 0; i < columnCount; i++) {
+                    rowLine.append(String.format("%-" + colWidths[i] + "s | ", row[i]));
+                }
+                System.out.println(rowLine);
+            }
+
+            System.out.println(separator);
 
         } catch (SQLException e) {
             System.out.println("Error retrieving records: " + e.getMessage());
         }
     }
+
     
     public void updateRecord(String sql, Object... values) {
         try (Connection conn = this.connectDB(); // Use the connectDB method
@@ -119,7 +158,7 @@ public class config {
             }
 
             pstmt.executeUpdate();
-            System.out.println("Record updated successfully!");
+            //System.out.println("Record updated successfully!");
         } catch (SQLException e) {
             System.out.println("Error updating record: " + e.getMessage());
         }
@@ -396,7 +435,7 @@ public class config {
 
                     // Insert inventory record with current date/time
                     String now = java.time.LocalDateTime.now()
-                                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     psIn.setInt(1, pid);
                     psIn.setInt(2, adminId);
                     psIn.setString(3, "ADD");
@@ -473,4 +512,33 @@ public class config {
         }
     }
 
+    public void sendEmail(String to, String subject, String body) {
+        final String from = "ninojaycavalidamanabat@gmail.com";
+        final String password = "snwd fsnx rfmn pors"; 
+
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(from, password);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(from, "MelynAl Trading"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+            message.setSubject(subject);
+            message.setText(body);
+
+            Transport.send(message);
+            System.out.println("Email sent successfully to: " + to);
+        } catch (Exception e) {
+            System.out.println("Error sending email: " + e.getMessage());
+        }
+}
 }

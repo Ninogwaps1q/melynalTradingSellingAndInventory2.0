@@ -153,7 +153,6 @@ public class manangeUser {
         int uid = Main.inp.nextInt();
         Main.inp.nextLine();
 
-
         String checkQry = "SELECT * FROM tbl_user WHERE u_id = ?";
         java.util.List<java.util.Map<String, Object>> checkResult = con.fetchRecords(checkQry, uid);
 
@@ -211,6 +210,8 @@ public class manangeUser {
 
             String sqlUpdate = "UPDATE tbl_user SET " + column + " = ? WHERE u_id = ?";
             con.updateRecord(sqlUpdate, newValue, uid);
+            
+            System.out.println("\nRecord updated successfully!");
         }
         
         else if (!column1.isEmpty()) {
@@ -228,6 +229,8 @@ public class manangeUser {
 
             String sqlUpdate = "UPDATE tbl_user SET " + column1 + " = ? WHERE u_id = ?";
             con.updateRecord(sqlUpdate, role, uid);
+            
+            System.out.println("\nRecord updated successfully!");
         }
     }
     
@@ -315,13 +318,42 @@ public class manangeUser {
         System.out.println("=== APPROVE USER ===");
         System.out.println("---------------------");
         
-        System.out.print("Enter id to Approve User: ");
+        System.out.print("Enter ID to Approve User: ");
         int aid = Main.inp.nextInt();
         Main.inp.nextLine();
-        
+
         config con = new config();
+
+        String fetchQuery = "SELECT u_fullname, u_email, u_status FROM tbl_user WHERE u_id = ?";
+        java.util.List<java.util.Map<String, Object>> result = con.fetchRecords(fetchQuery, aid);
+
+        if (result.isEmpty()) {
+            System.out.println("User not found!");
+            return;
+        }
+
+        String fullname = (String) result.get(0).get("u_fullname");
+        String email = (String) result.get(0).get("u_email");
+        String currentStatus = (String) result.get(0).get("u_status");
+
+        if ("Approved".equalsIgnoreCase(currentStatus)) {
+            System.out.println("User is already approved.");
+            return;
+        }
+
         String sqlUpdate = "UPDATE tbl_user SET u_status = ? WHERE u_id = ?";
         con.updateRecord(sqlUpdate, "Approved", aid);
+
+        System.out.println("\nUser approved successfully!");
+
+        // Prepare email
+        String subject = "Your MelynAl Trading Account Has Been Approved!";
+        String body = String.format(
+            "Hello %s,\n\nYour account has been approved by the admin.\nYou can now log in and start using the system.\n\nBest regards,\nMelynAl Trading",
+            fullname
+        );
+
+        con.sendEmail(email, subject, body);
     }
     
 }

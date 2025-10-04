@@ -57,8 +57,6 @@ public class manageProduct {
             res = Main.inp.next();
         }while(res.equals("yes") || res.equals("1"));
         Main.adminDashboard(uid);
-        
-        
     }
     
     public void deleteProduct(){
@@ -117,6 +115,8 @@ public class manageProduct {
         
         String sqlUpdate = "UPDATE tbl_product SET p_name = ?, p_category = ?, p_price = ?";
         con.updateRecord(sqlUpdate, pname, category, price);
+        
+        System.out.println("\nRecord updated successfully!");
     }
     
     public void viewProduct(){
@@ -155,6 +155,5 @@ public class manageProduct {
         config con = new config();
         String sql = "INSERT INTO tbl_product (p_name, p_category, p_price, p_stock, p_addDate) VALUES (?, ?, ?, ?, ?)";
         con.addRecord(sql, pname, category, price, stock, addDate);
-        
     }
 }
