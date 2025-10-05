@@ -513,8 +513,8 @@ public class config {
     }
 
     public void sendEmail(String to, String subject, String body) {
-        final String from = "ninojaycavalidamanabat@gmail.com";
-        final String password = "snwd fsnx rfmn pors"; 
+        final String from = "jaycavalidamanabat@gmail.com";
+        final String password = "wvdb zgnn sgcb xejz"; 
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
