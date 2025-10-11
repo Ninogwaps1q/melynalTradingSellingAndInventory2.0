@@ -189,10 +189,12 @@ public class config {
         String sql = "SELECT u_id, u_fullname, u_role, u_status FROM tbl_user WHERE u_username = ? AND u_password = ?";
 
         try (Connection conn = this.connectDB();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            String hash = hashPassword(pass);
+            
             pstmt.setString(1, uname);
-            pstmt.setString(2, pass);
+            pstmt.setString(2, hash);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -540,5 +542,24 @@ public class config {
         } catch (Exception e) {
             System.out.println("Error sending email: " + e.getMessage());
         }
+    }
+    
+    public String hashPassword(String password) {
+    try {
+        java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+        byte[] hashedBytes = md.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        
+        // Convert byte array to hex string
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashedBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    } catch (java.security.NoSuchAlgorithmException e) {
+        System.out.println("Error hashing password: " + e.getMessage());
+        return null;
+    }
 }
 }

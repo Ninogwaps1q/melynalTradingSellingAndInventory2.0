@@ -99,8 +99,17 @@ public class manangeUser {
         System.out.print("Create New Username: ");
         String uname = Main.inp.nextLine();
         
-        System.out.print("Create New Password: ");
-        String pass = Main.inp.nextLine();
+        while(true){
+            String qry = "SELECT * FROM tbl_user WHERE u_username = ?";
+            java.util.List<java.util.Map<String, Object>> result = con.fetchRecords(qry, uname);
+
+            if (result.isEmpty()) {
+                break;
+            } else {
+                System.out.print("Username already exists, Enter other Username: ");
+                uname = Main.inp.nextLine();
+            }
+        }
         
         System.out.print("Enter New Email: ");
         String email = Main.inp.nextLine();
@@ -113,7 +122,7 @@ public class manangeUser {
                 break;
             } else {
                 System.out.print("Email already exists, Enter other Email: ");
-                email = Main.inp.next();
+                email = Main.inp.nextLine();
             }
         }
         
@@ -137,8 +146,8 @@ public class manangeUser {
         }
         System.out.println("Update Successfully role " +role+"!");
         
-        String sqlUpdate = "UPDATE tbl_user SET u_fullname = ?, u_username = ?, u_password = ?, u_email = ?, u_contact = ?, u_role = ? WHERE u_id = ?";
-        con.updateRecord(sqlUpdate, fname, uname, pass, email, contact, role, uid);
+        String sqlUpdate = "UPDATE tbl_user SET u_fullname = ?, u_username = ?, u_email = ?, u_contact = ?, u_role = ? WHERE u_id = ?";
+        con.updateRecord(sqlUpdate, fname, uname, email, contact, role, uid);
     }
     
     public void updateUser(){
@@ -164,12 +173,11 @@ public class manangeUser {
         System.out.println("\nChoose field to Update!");
         System.out.println("1. Full Name");
         System.out.println("2. Username");
-        System.out.println("3. Password");
-        System.out.println("4. Email");
-        System.out.println("5. Contact");
-        System.out.println("6. Role");
-        System.out.println("7. All");
-        System.out.println("8. Back\n");
+        System.out.println("3. Email");
+        System.out.println("4. Contact");
+        System.out.println("5. Role");
+        System.out.println("6. All");
+        System.out.println("7. Back\n");
 
         System.out.print("\nChoose an option: ");
         int option = Main.inp.nextInt();
@@ -181,12 +189,11 @@ public class manangeUser {
         switch(option) {
             case 1: column = "u_fullname"; break;
             case 2: column = "u_username"; break;
-            case 3: column = "u_password"; break;
-            case 4: column = "u_email"; break;
-            case 5: column = "u_contact"; break;
-            case 6: column1 = "u_role"; break;
-            case 7: updateAll(uid); return; 
-            case 8: manageUser(uid); return;  
+            case 3: column = "u_email"; break;
+            case 4: column = "u_contact"; break;
+            case 5: column1 = "u_role"; break;
+            case 6: updateAll(uid); return; 
+            case 7: manageUser(uid); return;  
             default: System.out.println("Invalid Input, Try again.");updateUser();return;
         }
 
@@ -196,13 +203,25 @@ public class manangeUser {
 
             if (column.equals("u_email")) {
                 while (true) {
-                    String emailCheck = "SELECT * FROM tbl_user WHERE u_email = ? AND u_id <> ?";
-                    java.util.List<java.util.Map<String, Object>> result = con.fetchRecords(emailCheck, newValue, uid);
-
+                    String unameCheck = "SELECT * FROM tbl_user WHERE u_email = ? AND u_id = ?";
+                    java.util.List<java.util.Map<String, Object>> result = con.fetchRecords(unameCheck, newValue, uid);
+                    
                     if (result.isEmpty()) {
                         break;
                     } else {
                         System.out.print("Email already exists. Enter another Email: ");
+                        newValue = Main.inp.nextLine();
+                    }
+                }
+            }else if(column.equals("u_username")){
+                while(true){
+                    String emailCheck = "SELECT * FROM tbl_user WHERE u_username = ? AND u_id = ?";
+                    java.util.List<java.util.Map<String, Object>> result = con.fetchRecords(emailCheck, newValue, uid);
+                    
+                    if (result.isEmpty()) {
+                        break;
+                    } else {
+                        System.out.print("Email already exists. Enter another Username: ");
                         newValue = Main.inp.nextLine();
                     }
                 }
@@ -238,8 +257,8 @@ public class manangeUser {
         
         config con = new config();
         String mtsiQuery = "SELECT * FROM tbl_user";
-        String[] mstiHeaders = {"User ID", "Name", "Username", "Password", "Email", "Contact", "Role", "Status"};
-        String[] mstiColumns = {"u_id", "u_fullname", "u_username", "u_password", "u_email", "u_contact", "u_role", "u_status"};
+        String[] mstiHeaders = {"User ID", "Name", "Username", "Email", "Contact", "Role", "Status"};
+        String[] mstiColumns = {"u_id", "u_fullname", "u_username", "u_email", "u_contact", "u_role", "u_status"};
         con.viewRecords(mtsiQuery, mstiHeaders, mstiColumns);
     }
     
@@ -265,7 +284,7 @@ public class manangeUser {
                 break;
             } else {
                 System.out.print("Username already exists, Enter other Username: ");
-                uname = Main.inp.next();
+                uname = Main.inp.nextLine();
             }
         }
         
@@ -283,7 +302,7 @@ public class manangeUser {
                 break;
             } else {
                 System.out.print("Email already exists, Enter other Email: ");
-                email = Main.inp.next();
+                email = Main.inp.nextLine();
             }
         }
         

@@ -29,7 +29,7 @@ public class authentication {
                 break;
             } else {
                 System.out.print("Username already exists, Enter other Username: ");
-                uname = Main.inp.next();
+                uname = Main.inp.nextLine();
             }
         }
         
@@ -47,7 +47,7 @@ public class authentication {
                 break;
             } else {
                 System.out.print("Email already exists, Enter other Email: ");
-                email = Main.inp.next();
+                email = Main.inp.nextLine();
             }
         }
         
@@ -72,9 +72,9 @@ public class authentication {
         
         System.out.println("Your Successfully Register, Role " +role+ "! Wait for the approaval");
         
-       
+        String hash = con.hashPassword(pass);
         String sql = "INSERT INTO tbl_user (u_fullname, u_username, u_password, u_email, u_contact, u_role, u_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        con.addRecord(sql, fname, uname, pass, email, contact, role, "Pending");
+        con.addRecord(sql, fname, uname, hash, email, contact, role, "Pending");
         Main.main(null);
     }
     
