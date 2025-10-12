@@ -7,6 +7,55 @@ import java.util.Map;
 
 public class authentication {
     
+    public void forgotPassword() {
+        config con = new config();
+
+        System.out.println("\n-----------------------");
+        System.out.println("=== FORGOT PASSWORD ===");
+        System.out.println("-----------------------");
+
+        System.out.print("Enter your registered Email: ");
+        String email = Main.inp.nextLine();
+
+        String qry = "SELECT * FROM tbl_user WHERE u_email = ?";
+        java.util.List<java.util.Map<String, Object>> result = con.fetchRecords(qry, email);
+
+        if (result.isEmpty()) {
+            System.out.println("No account found with that email.");
+            Main.main(null);
+            return;
+        }
+
+        int resetCode = con.generateResetCode();
+        String fullname = (String) result.get(0).get("u_fullname");
+
+        try {
+            con.sendResetCodeEmail(fullname, email, resetCode);
+        } catch (Exception e) {
+            System.out.println("Failed to send email. " + e.getMessage());
+            Main.main(null);
+            return;
+        }
+
+        System.out.print("\nEnter the 6-digit code sent to your email: ");
+        int enteredCode = Main.inp.nextInt();
+        Main.inp.nextLine();
+
+        if (enteredCode == resetCode) {
+            System.out.print("Enter new password: ");
+            String newPass = Main.inp.nextLine();
+
+            String hashed = con.hashPassword(newPass);
+            con.updatePassword(email, hashed);
+
+            System.out.println("\nPassword reset successful! You can now log in.");
+        } else {
+            System.out.println("\nInvalid code. Returning to Main Menu...");
+        }
+
+        Main.main(null);
+    }
+    
     public void register(){
         
          config con = new config();

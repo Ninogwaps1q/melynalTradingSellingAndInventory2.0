@@ -545,21 +545,41 @@ public class config {
     }
     
     public String hashPassword(String password) {
-    try {
-        java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-        byte[] hashedBytes = md.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        
-        // Convert byte array to hex string
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : hashedBytes) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) hexString.append('0');
-            hexString.append(hex);
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+            // Convert byte array to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashedBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            System.out.println("Error hashing password: " + e.getMessage());
+            return null;
         }
-        return hexString.toString();
-    } catch (java.security.NoSuchAlgorithmException e) {
-        System.out.println("Error hashing password: " + e.getMessage());
-        return null;
     }
-}
+    
+    public int generateResetCode() {
+        return (int)(Math.random() * 900000) + 100000;
+    }
+
+    public void sendResetCodeEmail(String fullname, String email, int code) throws Exception {
+        String subject = "Password Reset Code - MelynAl Trading System";
+        String body = "Hello " + fullname + ",\n\n"
+                + "We received a request to reset your password.\n"
+                + "Your password reset code is: " + code + "\n\n"
+                + "If you did not request a password reset, please ignore this email.\n\n"
+                + "MelynAl Trading System";
+
+        sendEmail(email, subject, body);
+    }
+
+    public void updatePassword(String email, String hashedPassword) {
+        String updateSql = "UPDATE tbl_user SET u_password = ? WHERE u_email = ?";
+        updateRecord(updateSql, hashedPassword, email);
+    }
 }

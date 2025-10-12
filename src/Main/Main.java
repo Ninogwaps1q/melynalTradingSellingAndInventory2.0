@@ -22,7 +22,8 @@ public class Main {
         System.out.println("\nWELCOME TO MELYNAL TRADING SYSTEM");
         System.out.println("1. Login");
         System.out.println("2. Register");
-        System.out.println("3. Exit");
+        System.out.println("3. Forgot Password");
+        System.out.println("4. Exit");
         
         System.out.print("\nChoose an option: ");
         int option = inp.nextInt();
@@ -39,6 +40,10 @@ public class Main {
                 break;
                 
             case 3:
+                au.forgotPassword();
+                break;
+                
+            case 4:
                 System.out.println("Thank you for using my system:).");
                 break;
                 
