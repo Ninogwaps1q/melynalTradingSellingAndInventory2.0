@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 public class createSales extends config{
     
-    public void createSales(int userId){
+     public void createSales(int userId) {
         String selectProduct = "SELECT p_name, p_price, p_stock FROM tbl_product WHERE p_id = ?";
         String insertSale = "INSERT INTO tbl_sale(p_id, u_id, quantity, subtotal, s_date) VALUES (?, ?, ?, ?, ?)";
         String updateStock = "UPDATE tbl_product SET p_stock = ? WHERE p_id = ?";
@@ -85,17 +85,34 @@ public class createSales extends config{
                     grandTotal += (float) item.get("subtotal");
                 }
 
-                // === RECEIPT PRINTING ===
+                System.out.printf("\nGrand Total: %.2f\n", grandTotal);
+                float cashReceived = 0;
+
+                while (true) {
+                    System.out.print("Enter Cash Received: ");
+                    cashReceived = Main.inp.nextFloat();
+                    if (cashReceived < grandTotal) {
+                        System.out.println("Insufficient cash! Please enter exact amount.");
+                    } else {
+                        break;
+                    }
+                }
+
+                float change = cashReceived - grandTotal;
+
                 System.out.println("\n====== RECEIPT ======");
                 for (Map<String, Object> item : cart) {
-                    System.out.printf("%s x%s : %.2f = %.2f%n",
+                    System.out.printf("%s x%s @ %.2f = %.2f%n",
                             item.get("name"), item.get("qty"), item.get("price"), item.get("subtotal"));
                 }
                 System.out.println("---------------------");
-                System.out.printf("TOTAL: %.2f\n", grandTotal);
-                System.out.println("Date: " + date);
-                System.out.println("Cashier/User ID: " + userId);
+                System.out.printf("TOTAL: %.2f%n", grandTotal);
+                System.out.printf("CASH RECEIVED: %.2f%n", cashReceived);
+                System.out.printf("CHANGE: %.2f%n", change);
+                System.out.println("DATE: " + date);
+                System.out.println("CASHIER ID: " + userId);
                 System.out.println("======================\n");
+
             } else {
                 System.out.println("No items in cart.");
             }

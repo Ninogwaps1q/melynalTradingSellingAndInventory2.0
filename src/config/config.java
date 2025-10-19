@@ -405,9 +405,9 @@ public class config {
         }
     }
      
-     public void addStocks(int adminId) { 
+    public void addStocks(int adminId) { 
         
-         System.out.print("Enter Product ID: ");
+        System.out.print("Enter Product ID: ");
         int pid = Main.inp.nextInt();
         
         System.out.print("Enter Quantity to Add: ");
@@ -456,7 +456,7 @@ public class config {
         }
     }
      
-     public void removeStock(int adminId) { 
+    public void removeStock(int adminId) { 
         
         System.out.print("Enter Product ID: ");
         int pid = Main.inp.nextInt();
