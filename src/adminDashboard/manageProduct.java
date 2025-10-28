@@ -103,18 +103,15 @@ public class manageProduct {
             System.out.println("Invalid ID. Product not found.");
             return;
         }
-        
-        System.out.print("Enter New Product Name: ");
-        String pname = Main.inp.nextLine();
-        
+                
         System.out.print("Enter Category: ");
         String category = Main.inp.nextLine();
         
         System.out.print("Enter New Price: ");
         float price = Main.inp.nextFloat();
         
-        String sqlUpdate = "UPDATE tbl_product SET p_name = ?, p_category = ?, p_price = ?";
-        con.updateRecord(sqlUpdate, pname, category, price);
+        String sqlUpdate = "UPDATE tbl_product SET p_category = ?, p_price = ?";
+        con.updateRecord(sqlUpdate, category, price);
         
         System.out.println("\nRecord updated successfully!");
     }

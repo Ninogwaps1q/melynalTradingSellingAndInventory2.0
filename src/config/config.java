@@ -252,10 +252,16 @@ public class config {
 }
     
     public void viewMySales(int userId) {
-    String sql = "SELECT s.s_id, p.p_name, s.quantity, s.subtotal " +
-                 "FROM tbl_sale s " +
-                 "JOIN tbl_product p ON s.p_id = p.p_id " +
-                 "WHERE s.u_id = ?";
+        String sql =
+            "SELECT s.s_id AS sale_id, u.u_fullname AS cashier_name, " +
+            "s.total, s.cash, s.change, s.s_date, " +
+            "p.p_name, si.quantity, si.subtotal " +
+            "FROM tbl_sale s " +
+            "JOIN tbl_user u ON s.u_id = u.u_id " +
+            "JOIN tbl_sale_item si ON s.s_id = si.sale_id " +
+            "JOIN tbl_product p ON si.p_id = p.p_id " +
+            "WHERE s.u_id = ? " +
+            "ORDER BY s.s_date DESC, s.s_id";
 
         try (Connection conn = this.connectDB();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -263,75 +269,161 @@ public class config {
             pstmt.setInt(1, userId);
             ResultSet rs = pstmt.executeQuery();
 
-            System.out.println("------------------------------------------------------");
-            System.out.printf("%-8s | %-15s | %-10s | %-10s |\n", "Sale ID", "Product Name", "Quantity", "Subtotal");
-            System.out.println("------------------------------------------------------");
-
-            float total = 0;
-            while (rs.next()) {
-                int saleId = rs.getInt("s_id");
-                String productName = rs.getString("p_name");
-                int qty = rs.getInt("quantity");   
-                float subtotal = rs.getFloat("subtotal");
-
-                System.out.printf("%-8d | %-15s | %-10d | %10.2f |\n", saleId, productName, qty, subtotal);
-                total += subtotal;
+            if (!rs.isBeforeFirst()) {
+                System.out.println("\nNo sales found for this cashier.");
+                return;
             }
 
-            System.out.println("------------------------------------------------------");
-            System.out.printf("Total Sales by Cashier/User ID %d: %.2f\n", userId, total);
+            java.util.List<String[]> rows = new java.util.ArrayList<>();
+            int[] widths = {7, 19, 18, 18, 5, 10, 10, 10, 10};
+
+            while (rs.next()) {
+                String[] row = {
+                    String.valueOf(rs.getInt("sale_id")),
+                    rs.getString("s_date"),
+                    rs.getString("cashier_name"),
+                    rs.getString("p_name"),
+                    String.valueOf(rs.getInt("quantity")),
+                    String.format("%.2f", rs.getFloat("subtotal")),
+                    String.format("%.2f", rs.getFloat("total")),
+                    String.format("%.2f", rs.getFloat("cash")),
+                    String.format("%.2f", rs.getFloat("change"))
+                };
+
+                for (int i = 0; i < row.length; i++) {
+                    widths[i] = Math.max(widths[i], row[i].length());
+                }
+                rows.add(row);
+            }
+
+            System.out.println();
+            printLine("=", widths);
+            System.out.println(centerText("MY SALES HISTORY", totalWidth(widths) + (widths.length + 1)));
+            printLine("=", widths);
+
+            String[] headers = {"SALE ID", "DATE", "CASHIER", "PRODUCT", "QTY", "SUBTOTAL", "TOTAL", "CASH", "CHANGE"};
+            printRow(headers, widths);
+            printLine("-", widths);
+
+            // Print data rows
+            for (String[] row : rows) {
+                printRow(row, widths);
+            }
+
+            printLine("=", widths);
 
         } catch (SQLException e) {
-            System.out.println("Error retrieving sales: " + e.getMessage());
+            System.out.println("Error retrieving my sales: " + e.getMessage());
         }
     }
-    
-    
+
+    private static void printRow(String[] cols, int[] widths) {
+        System.out.print("|");
+        for (int i = 0; i < cols.length; i++) {
+            System.out.printf(" %-" + widths[i] + "s |", cols[i]);
+        }
+        System.out.println();
+    }
+
+    private static void printLine(String ch, int[] widths) {
+        int total = totalWidth(widths) + widths.length * 3 + 1;
+        for (int i = 0; i < total; i++) System.out.print(ch);
+        System.out.println();
+    }
+
+    private static int totalWidth(int[] widths) {
+        int sum = 0;
+        for (int w : widths) sum += w;
+        return sum;
+    }
+
+    private static String centerText(String text, int width) {
+        int padSize = (width - text.length()) / 2;
+        String pad = new String(new char[Math.max(0, padSize)]).replace('\0', ' ');
+        return pad + text;
+    }
+
+    private static String repeat(String str, int times) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < times; i++) {
+            sb.append(str);
+        }
+        return sb.toString();
+    }
+
     public void viewAllSales() {
-        String sql = "SELECT s.s_id, p.p_name, u.u_fullname, s.quantity, s.subtotal, s.s_date " +
-                     "FROM tbl_sale s " +
-                     "JOIN tbl_product p ON s.p_id = p.p_id " +
-                     "JOIN tbl_user u ON s.u_id = u.u_id " +
-                     "ORDER BY s.s_date DESC";
+        String sql =
+            "SELECT s.s_id AS sale_id, u.u_fullname AS cashier_name, " +
+            "s.total, s.cash, s.change, s.s_date, " +
+            "p.p_name, si.quantity, si.subtotal " +
+            "FROM tbl_sale s " +
+            "JOIN tbl_user u ON s.u_id = u.u_id " +
+            "JOIN tbl_sale_item si ON s.s_id = si.sale_id " +
+            "JOIN tbl_product p ON si.p_id = p.p_id " +
+            "ORDER BY s.s_date DESC, s.s_id";
 
         try (Connection conn = this.connectDB();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
-            System.out.println("---------------------------------------------------------------------------------------------------------");
-            System.out.printf("%-8s | %-15s | %-20s | %-10s | %-10s | %-25s |\n", 
-                              "Sale ID", "Product Name", "Cashier", "Quantity", "Subtotal", "Date");
-            System.out.println("---------------------------------------------------------------------------------------------------------");
-
-            float total = 0;
-            while (rs.next()) {
-                int saleId = rs.getInt("s_id");
-                String productName = rs.getString("p_name");
-                String cashier = rs.getString("u_fullname");
-                int qty = rs.getInt("quantity");
-                float subtotal = rs.getFloat("subtotal");
-                String date = rs.getString("s_date");
-
-                System.out.printf("%-8d | %-15s | %-20s | %-10d | %-10.2f | %-25s |\n", 
-                                  saleId, productName, cashier, qty, subtotal, date);
-                total += subtotal;
+            if (!rs.isBeforeFirst()) {
+                System.out.println("\nNo sales records found.");
+                return;
             }
 
-            System.out.println("---------------------------------------------------------------------------------------------------------");
-            System.out.printf("Total Sales (ALL): %.2f\n", total);
+            java.util.List<String[]> rows = new java.util.ArrayList<>();
+            int[] widths = {7, 19, 18, 18, 5, 10, 10, 10, 10};
+
+            while (rs.next()) {
+                String[] row = {
+                    String.valueOf(rs.getInt("sale_id")),
+                    rs.getString("s_date"),
+                    rs.getString("cashier_name"),
+                    rs.getString("p_name"),
+                    String.valueOf(rs.getInt("quantity")),
+                    String.format("%.2f", rs.getFloat("subtotal")),
+                    String.format("%.2f", rs.getFloat("total")),
+                    String.format("%.2f", rs.getFloat("cash")),
+                    String.format("%.2f", rs.getFloat("change"))
+                };
+
+                for (int i = 0; i < row.length; i++) {
+                    widths[i] = Math.max(widths[i], row[i].length());
+                }
+
+                rows.add(row);
+            }
+
+            System.out.println();
+            printLine("=", widths);
+            System.out.println(centerText("ALL SALES RECORDS", totalWidth(widths) + (widths.length * 3) + 1));
+            printLine("=", widths);
+
+            String[] headers = {"SALE ID", "DATE", "CASHIER", "PRODUCT", "QTY", "SUBTOTAL", "TOTAL", "CASH", "CHANGE"};
+            printRow(headers, widths);
+            printLine("-", widths);
+
+            for (String[] row : rows) {
+                printRow(row, widths);
+            }
+
+            printLine("=", widths);
 
         } catch (SQLException e) {
             System.out.println("Error retrieving all sales: " + e.getMessage());
         }
     }
-    
+
     public void viewSalesByDateRange(String startDate, String endDate) {
-        String sql = "SELECT s.s_id, p.p_name, u.u_fullname, s.quantity, s.subtotal, s.s_date " +
+        String sql = "SELECT s.s_id AS sale_id, s.total, s.cash, s.change, s.s_date, " +
+                     "u.u_fullname AS cashier_name, " +
+                     "p.p_name, si.quantity, si.subtotal " +
                      "FROM tbl_sale s " +
-                     "JOIN tbl_product p ON s.p_id = p.p_id " +
                      "JOIN tbl_user u ON s.u_id = u.u_id " +
+                     "JOIN tbl_sale_item si ON s.s_id = si.sale_id " +
+                     "JOIN tbl_product p ON si.p_id = p.p_id " +
                      "WHERE s.s_date BETWEEN ? AND ? " +
-                     "ORDER BY s.s_date ASC";
+                     "ORDER BY s.s_date ASC, s.s_id ASC";
 
         try (Connection conn = this.connectDB();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -341,35 +433,46 @@ public class config {
 
             ResultSet rs = pstmt.executeQuery();
 
-            System.out.println("-----------------------------------------------------------------------------------------------");
-            System.out.printf("%-8s | %-15s | %-20s | %-5s | %-10s | %-20s |\n",
-                              "Sale ID", "Product", "Cashier", "Qty", "Subtotal", "Date");
-            System.out.println("-----------------------------------------------------------------------------------------------");
+            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
+            System.out.printf("%-8s | %-15s | %-20s | %-5s | %-10s | %-10s | %-10s | %-10s | %-20s%n",
+                              "Sale ID", "Product", "Cashier", "Qty", "Subtotal", "Total", "Cash", "Change", "Date");
+            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
 
+            boolean hasData = false;
             while (rs.next()) {
-                System.out.printf("%-8d | %-15s | %-20s | %-5d | %-10.2f | %-20s |\n",
-                                  rs.getInt("s_id"),
+                hasData = true;
+                System.out.printf("%-8d | %-15s | %-20s | %-5d | %-10.2f | %-10.2f | %-10.2f | %-10.2f | %-20s%n",
+                                  rs.getInt("sale_id"),
                                   rs.getString("p_name"),
-                                  rs.getString("u_fullname"),
+                                  rs.getString("cashier_name"),
                                   rs.getInt("quantity"),
                                   rs.getFloat("subtotal"),
+                                  rs.getFloat("total"),
+                                  rs.getFloat("cash"),
+                                  rs.getFloat("change"),
                                   rs.getString("s_date"));
             }
 
-            System.out.println("-----------------------------------------------------------------------------------------------");
+            if (!hasData) {
+                System.out.println("No sales found between " + startDate + " and " + endDate);
+            }
+
+            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
 
         } catch (SQLException e) {
             System.out.println("Error fetching sales: " + e.getMessage());
         }
     }
-    
-     public void viewSalesByProductId(int productId) {
-        String sql = "SELECT s.s_id, p.p_name, u.u_fullname, s.quantity, s.subtotal, s.s_date " +
+
+    public void viewSalesByProductId(int productId) {
+        String sql = "SELECT s.s_id AS sale_id, s.total, s.cash, s.change, s.s_date, " +
+                     "u.u_fullname AS cashier_name, p.p_name, si.quantity, si.subtotal " +
                      "FROM tbl_sale s " +
-                     "JOIN tbl_product p ON s.p_id = p.p_id " +
                      "JOIN tbl_user u ON s.u_id = u.u_id " +
-                     "WHERE s.p_id = ? " +
-                     "ORDER BY s.s_date ASC";
+                     "JOIN tbl_sale_item si ON s.s_id = si.sale_id " +
+                     "JOIN tbl_product p ON si.p_id = p.p_id " +
+                     "WHERE si.p_id = ? " +
+                     "ORDER BY s.s_date ASC, s.s_id ASC";
 
         try (Connection conn = this.connectDB();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -377,34 +480,38 @@ public class config {
             pstmt.setInt(1, productId);
             ResultSet rs = pstmt.executeQuery();
 
-            System.out.println("-----------------------------------------------------------------------------------------------");
-            System.out.printf("%-8s | %-15s | %-20s | %-5s | %-10s | %-20s |\n",
-                              "Sale ID", "Product", "Cashier", "Qty", "Subtotal", "Date");
-            System.out.println("-----------------------------------------------------------------------------------------------");
+            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
+            System.out.printf("%-8s | %-15s | %-20s | %-5s | %-10s | %-10s | %-10s | %-10s | %-20s%n",
+                              "Sale ID", "Product", "Cashier", "Qty", "Subtotal", "Total", "Cash", "Change", "Date");
+            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
 
             boolean hasData = false;
             while (rs.next()) {
                 hasData = true;
-                System.out.printf("%-8d | %-15s | %-20s | %-5d | %-10.2f | %-20s |\n",
-                                  rs.getInt("s_id"),
+                System.out.printf("%-8d | %-15s | %-20s | %-5d | %-10.2f | %-10.2f | %-10.2f | %-10.2f | %-20s%n",
+                                  rs.getInt("sale_id"),
                                   rs.getString("p_name"),
-                                  rs.getString("u_fullname"),
+                                  rs.getString("cashier_name"),
                                   rs.getInt("quantity"),
                                   rs.getFloat("subtotal"),
+                                  rs.getFloat("total"),
+                                  rs.getFloat("cash"),
+                                  rs.getFloat("change"),
                                   rs.getString("s_date"));
             }
 
             if (!hasData) {
-                System.out.println("No sales found for Product ID " + productId);
+                System.out.println("No sales found for Product ID: " + productId);
             }
 
-            System.out.println("-----------------------------------------------------------------------------------------------");
+            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
 
         } catch (SQLException e) {
             System.out.println("Error fetching sales by Product ID: " + e.getMessage());
         }
     }
-     
+
+    
     public void addStocks(int adminId) { 
         
         System.out.print("Enter Product ID: ");
@@ -430,19 +537,17 @@ public class config {
                 try (PreparedStatement psUp = conn.prepareStatement(update);
                      PreparedStatement psIn = conn.prepareStatement(insert)) {
 
-                    // Update product stock
                     psUp.setInt(1, newStock);
                     psUp.setInt(2, pid);
                     psUp.executeUpdate();
 
-                    // Insert inventory record with current date/time
                     String now = java.time.LocalDateTime.now()
                             .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     psIn.setInt(1, pid);
                     psIn.setInt(2, adminId);
                     psIn.setString(3, "ADD");
                     psIn.setInt(4, qty);
-                    psIn.setString(5, now); // Pass current datetime
+                    psIn.setString(5, now);
                     psIn.executeUpdate();
 
                     System.out.println("Stock added successfully!");
@@ -487,12 +592,10 @@ public class config {
                 try (PreparedStatement psUp = conn.prepareStatement(update);
                      PreparedStatement psIn = conn.prepareStatement(insert)) {
 
-                    // Update product stock
                     psUp.setInt(1, newStock);
                     psUp.setInt(2, pid);
                     psUp.executeUpdate();
 
-                    // Insert inventory adjustment record
                     String now = java.time.LocalDateTime.now()
                                     .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                     psIn.setInt(1, pid);

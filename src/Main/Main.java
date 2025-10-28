@@ -7,6 +7,7 @@ import adminDashboard.manageSales;
 import adminDashboard.manangeUser;
 import authentication.authentication;
 import cashierDashboard.createSales;
+import cashierDashboard.retriveReciept;
 import cashierDashboard.viewMySale;
 import java.util.Scanner;
 
@@ -104,6 +105,7 @@ public class Main {
         createSales cs = new createSales();
         manageProduct mp = new manageProduct();
         viewMySale vs = new viewMySale();
+        retriveReciept rr = new retriveReciept();
         
         String res;
         do{
@@ -114,7 +116,8 @@ public class Main {
             System.out.println("1. Sell Products");
             System.out.println("2. View Products");
             System.out.println("3. View My Sales");
-            System.out.println("4. Logout");
+            System.out.println("4. Search My Receipt Sale");
+            System.out.println("5. Logout");
 
             System.out.print("\nChoose an option: ");
             int option = inp.nextInt();
@@ -133,8 +136,12 @@ public class Main {
                 case 3:
                     vs.viewMySale(uid);
                     break;
-
+                    
                 case 4:
+                    rr.retrieveReceipt(uid);
+                    break;
+                    
+                case 5:
                     main(null);
                     return;
 
