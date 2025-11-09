@@ -56,7 +56,7 @@ public class config {
         }
 
         pstmt.executeUpdate();
-        System.out.println("Record added successfully!");
+        //System.out.println("Record added successfully!");
     } catch (SQLException e) {
         System.out.println("Error adding record: " + e.getMessage());
     }
@@ -635,15 +635,15 @@ public class config {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(from, "MelynAl Trading"));
+            message.setFrom(new InternetAddress(from, "Melynal Trading"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
             message.setText(body);
 
             Transport.send(message);
-            System.out.println("Email sent successfully to: " + to);
+            System.out.println("\nEmail sent successfully to: " + to);
         } catch (Exception e) {
-            System.out.println("Error sending email: " + e.getMessage());
+            System.out.println("\nError sending email: " + e.getMessage());
         }
     }
     
@@ -671,12 +671,12 @@ public class config {
     }
 
     public void sendResetCodeEmail(String fullname, String email, int code) throws Exception {
-        String subject = "Password Reset Code - MelynAl Trading System";
+        String subject = "Password Reset Code - Melynal Trading System";
         String body = "Hello " + fullname + ",\n\n"
                 + "We received a request to reset your password.\n"
                 + "Your password reset code is: " + code + "\n\n"
                 + "If you did not request a password reset, please ignore this email.\n\n"
-                + "MelynAl Trading System";
+                + "Melynal Trading System";
 
         sendEmail(email, subject, body);
     }

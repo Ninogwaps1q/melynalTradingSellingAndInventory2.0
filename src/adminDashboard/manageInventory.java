@@ -21,30 +21,29 @@ public class manageInventory {
             System.out.println("5. Back to admin Dashboard");
 
             System.out.print("\nChoose an option: ");
-            int option = Main.inp.nextInt();
-            Main.inp.nextLine();
+            String option = Main.inp.nextLine();
 
             switch(option){
 
-                case 1:
+                case "1":
                     viewStock();
                     addStock(adminId);
                     break;
                     
-                case 2:
+                case "2":
                     viewStock();
                     removeStock(adminId);
                     break;
                     
-                case 3:
+                case "3":
                     viewStock();
                     break;
                     
-                case 4:
+                case "4":
                     viewInventoryAdjust();
                     break;
                     
-                case 5:
+                case "5":
                     Main.adminDashboard(adminId);
                     return;
             }

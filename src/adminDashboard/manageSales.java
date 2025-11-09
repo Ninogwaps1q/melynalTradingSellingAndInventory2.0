@@ -32,33 +32,32 @@ public class manageSales {
 
 
             System.out.print("\nChoose an option: ");
-            int option = Main.inp.nextInt();
-            Main.inp.nextLine();
-
+            String option = Main.inp.nextLine();
+            
             switch(option){
 
-                case 1:
+                case "1":
                     mp.viewProduct();
                     cs.createSales(uid);
                     break;
 
-                case 2:
+                case "2":
                     viewAllSale();
                     break;
 
-                case 3:
+                case "3":
                     viewSalaByDate();
                     break;
                     
-                case 4:
+                case "4":
                     viewSaleByProduct();
                     break;
                     
-                case 5:
+                case "5":
                     searchAllReceipt();
                     break;
                     
-                case 6:
+                case "6":
                     Main.adminDashboard(uid);
                     return;
                     

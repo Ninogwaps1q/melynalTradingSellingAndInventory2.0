@@ -120,56 +120,55 @@ public class createSales extends config{
         float change = cashReceived - grandTotal;
 
         int saleId = 0;
-        try (PreparedStatement pstmtSale = conn.prepareStatement(insertSale, Statement.RETURN_GENERATED_KEYS)) {
-            pstmtSale.setInt(1, userId);
-            pstmtSale.setFloat(2, grandTotal);
-            pstmtSale.setFloat(3, cashReceived);
-            pstmtSale.setFloat(4, change);
-            pstmtSale.setString(5, date);
-            pstmtSale.executeUpdate();
+            try (PreparedStatement pstmtSale = conn.prepareStatement(insertSale, Statement.RETURN_GENERATED_KEYS)) {
+                pstmtSale.setInt(1, userId);
+                pstmtSale.setFloat(2, grandTotal);
+                pstmtSale.setFloat(3, cashReceived);
+                pstmtSale.setFloat(4, change);
+                pstmtSale.setString(5, date);
+                pstmtSale.executeUpdate();
 
-            ResultSet keys = pstmtSale.getGeneratedKeys();
-            if (keys.next()) {
-                saleId = keys.getInt(1);
+                ResultSet keys = pstmtSale.getGeneratedKeys();
+                if (keys.next()) {
+                    saleId = keys.getInt(1);
+                }
             }
-        }
 
-        for (Map<String, Object> item : cart) {
-            try (PreparedStatement pstmtItem = conn.prepareStatement(insertSaleItem)) {
-                pstmtItem.setInt(1, saleId);
-                pstmtItem.setInt(2, (int) item.get("id"));
-                pstmtItem.setInt(3, (int) item.get("qty"));
-                pstmtItem.setFloat(4, (float) item.get("subtotal"));
-                pstmtItem.executeUpdate();
+            for (Map<String, Object> item : cart) {
+                try (PreparedStatement pstmtItem = conn.prepareStatement(insertSaleItem)) {
+                    pstmtItem.setInt(1, saleId);
+                    pstmtItem.setInt(2, (int) item.get("id"));
+                    pstmtItem.setInt(3, (int) item.get("qty"));
+                    pstmtItem.setFloat(4, (float) item.get("subtotal"));
+                    pstmtItem.executeUpdate();
+                }
             }
+
+            conn.commit();
+
+            System.out.println("\n==============================");
+            System.out.println("           RECEIPT");
+            System.out.println("==============================");
+            System.out.println("SALE ID: " + saleId);
+            System.out.println("DATE: " + date);
+            System.out.println("CASHIER ID: " + userId);
+            System.out.println("------------------------------");
+            for (Map<String, Object> item : cart) {
+                System.out.printf("%-10s x%-3d @ %-6.2f = %.2f%n",
+                        item.get("name"),
+                        item.get("qty"),
+                        item.get("price"),
+                        item.get("subtotal"));
+            }
+            System.out.println("------------------------------");
+            System.out.printf("%-20s %.2f%n", "TOTAL:", grandTotal);
+            System.out.printf("%-20s %.2f%n", "CASH RECEIVED:", cashReceived);
+            System.out.printf("%-20s %.2f%n", "CHANGE:", change);
+            System.out.println("==============================\n");
+
+        } catch (SQLException e) {
+            System.out.println("Error in creating sales: " + e.getMessage());
         }
-
-        conn.commit();
-
-        System.out.println("\n==============================");
-        System.out.println("           RECEIPT");
-        System.out.println("==============================");
-        System.out.println("SALE ID: " + saleId);
-        System.out.println("DATE: " + date);
-        System.out.println("CASHIER ID: " + userId);
-        System.out.println("------------------------------");
-        for (Map<String, Object> item : cart) {
-            System.out.printf("%-10s x%-3d @ %-6.2f = %.2f%n",
-                    item.get("name"),
-                    item.get("qty"),
-                    item.get("price"),
-                    item.get("subtotal"));
-        }
-        System.out.println("------------------------------");
-        System.out.printf("%-20s %.2f%n", "TOTAL:", grandTotal);
-        System.out.printf("%-20s %.2f%n", "CASH RECEIVED:", cashReceived);
-        System.out.printf("%-20s %.2f%n", "CHANGE:", change);
-        System.out.println("==============================\n");
-
-    } catch (SQLException e) {
-        System.out.println("❌ Error in creating sales: " + e.getMessage());
     }
-}
 
-        
 }

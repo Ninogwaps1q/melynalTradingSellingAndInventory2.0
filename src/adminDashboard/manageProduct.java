@@ -22,30 +22,29 @@ public class manageProduct {
             System.out.println("5. Back to Admin Dashboard");
 
             System.out.print("\nChoose an option: ");
-            int option = Main.inp.nextInt();
-            Main.inp.nextLine();
-
+            String option = Main.inp.nextLine();
+            
             switch(option){
 
-                case 1:
+                case "1":
                     addProduct();
                     break;
 
-                case 2:
+                case "2":
                     viewProduct();
                     break;
                     
-                case 3:
+                case "3":
                     viewProduct();
                     updateProduct();
                     break;
                     
-                case 4:
+                case "4":
                     viewProduct();
                     deleteProduct();
                     break;
 
-                case 5:
+                case "5":
                     Main.adminDashboard(uid);
                     return;
                     
@@ -93,11 +92,11 @@ public class manageProduct {
         System.out.println("------------------------");
         
         System.out.print("Enter Product ID to Update: ");
-        int uid = Main.inp.nextInt();
+        int pid = Main.inp.nextInt();
         Main.inp.nextLine();
         
         String checkQry = "SELECT * FROM tbl_product WHERE p_id = ?";
-        java.util.List<java.util.Map<String, Object>> checkResult = con.fetchRecords(checkQry, uid);
+        java.util.List<java.util.Map<String, Object>> checkResult = con.fetchRecords(checkQry, pid);
 
         if (checkResult.isEmpty()) {
             System.out.println("Invalid ID. Product not found.");
@@ -110,8 +109,8 @@ public class manageProduct {
         System.out.print("Enter New Price: ");
         float price = Main.inp.nextFloat();
         
-        String sqlUpdate = "UPDATE tbl_product SET p_category = ?, p_price = ?";
-        con.updateRecord(sqlUpdate, category, price);
+        String sqlUpdate = "UPDATE tbl_product SET p_category = ?, p_price = ? WHERE p_id = ?";
+        con.updateRecord(sqlUpdate, category, price, pid);
         
         System.out.println("\nRecord updated successfully!");
     }

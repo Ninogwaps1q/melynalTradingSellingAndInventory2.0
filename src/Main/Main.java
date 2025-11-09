@@ -27,29 +27,29 @@ public class Main {
         System.out.println("4. Exit");
         
         System.out.print("\nChoose an option: ");
-        int option = inp.nextInt();
-        inp.nextLine();
+        String option = inp.nextLine();
         
         switch(option){
             
-            case 1:
+            case "1":
                 au.login();
                 break;
                 
-            case 2:
+            case "2":
                 au.register();
                 break;
                 
-            case 3:
+            case "3":
                 au.forgotPassword();
                 break;
                 
-            case 4:
+            case "4":
                 System.out.println("Thank you for using my system:).");
                 break;
                 
             default: System.out.println("Incvalid input, Try again..");
             main(null);
+            
         }
     }
     
@@ -70,28 +70,27 @@ public class Main {
         System.out.println("5. Logout");
         
         System.out.print("\nChoose an option: ");
-        int option = inp.nextInt();
-        inp.nextLine();
-        
+        String option = inp.nextLine();
+       
         switch(option){
             
-            case 1:
+            case "1":
                 mu.manageUser(uid);
                 break;
                 
-            case 2:
+            case "2":
                 mp.manageProduct(uid);
                 break;
                 
-            case 3:
+            case "3":
                 ms.manageSales(uid);
                 break;
                 
-            case 4:
+            case "4":
                 mi.manageInventory(uid);
                 break;
                 
-            case 5:
+            case "5":
                 main(null);
                 return;
                   
@@ -120,28 +119,27 @@ public class Main {
             System.out.println("5. Logout");
 
             System.out.print("\nChoose an option: ");
-            int option = inp.nextInt();
-            inp.nextLine();
-
+            String option = inp.nextLine();
+            
             switch(option) {
-                case 1:
+                case "1":
                     mp.viewProduct();
                     cs.createSales(uid);
                     break;
 
-                case 2:
+                case "2":
                     mp.viewProduct();
                     break;
 
-                case 3:
+                case "3":
                     vs.viewMySale(uid);
                     break;
                     
-                case 4:
+                case "4":
                     rr.retrieveReceipt(uid);
                     break;
                     
-                case 5:
+                case "5":
                     main(null);
                     return;
 

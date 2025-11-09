@@ -115,8 +115,10 @@ public class authentication {
         String role = "";
         if(chooseRole == 1){
             role = "Admin";
-        }else{
+        }else if (chooseRole == 2){
             role = "Cashier";
+        }else{
+            System.out.println("\nInvalid Enter, Try again");
         }
         
         System.out.println("Your Successfully Register, Role " +role+ "! Wait for the approaval");
@@ -124,6 +126,11 @@ public class authentication {
         String hash = con.hashPassword(pass);
         String sql = "INSERT INTO tbl_user (u_fullname, u_username, u_password, u_email, u_contact, u_role, u_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         con.addRecord(sql, fname, uname, hash, email, contact, role, "Pending");
+        
+        if (Main.inp.hasNextLine()) {
+            Main.inp.nextLine();
+        }
+
         Main.main(null);
     }
     

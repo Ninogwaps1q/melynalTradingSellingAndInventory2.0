@@ -21,35 +21,34 @@ public class manangeUser {
             System.out.println("6. Back to Admin Dashboard");
 
             System.out.print("\nChoose an option: ");
-            int option = Main.inp.nextInt();
-            Main.inp.nextLine();
+            String option = Main.inp.nextLine();
 
             switch(option){
 
-                case 1:
+                case "1":
                     viewUser();
                     approveUser();
                     break;
 
-                case 2:
+                case "2":
                     addUser();
                     break;
 
-                case 3:
+                case "3":
                     viewUser();
                     break;
                     
-                case 4:
+                case "4":
                     viewUser();
                     updateUser();
                     break;
                     
-                case 5:
+                case "5":
                     viewUser();
                     deleteUser();
                     break;
                     
-                case 6:
+                case "6":
                     Main.adminDashboard(uid);
                     return;
                     
@@ -265,70 +264,76 @@ public class manangeUser {
     public void addUser(){
         
         config con = new config();
-        
+
         System.out.println("\n---------------------");
         System.out.println("=== ADD USER ===");
         System.out.println("---------------------");
-        
+
         System.out.print("Enter Fullname: ");
         String fname = Main.inp.nextLine();
-        
+
         System.out.print("Create Username: ");
         String uname = Main.inp.nextLine();
-        
-        while(true){
+
+        while (true) {
             String qry = "SELECT * FROM tbl_user WHERE u_username = ?";
             java.util.List<java.util.Map<String, Object>> result = con.fetchRecords(qry, uname);
-
-            if (result.isEmpty()) {
-                break;
-            } else {
-                System.out.print("Username already exists, Enter other Username: ");
-                uname = Main.inp.nextLine();
-            }
+            if (result.isEmpty()) break;
+            System.out.print("Username already exists, Enter other Username: ");
+            uname = Main.inp.nextLine();
         }
-        
+
         System.out.print("Create Password: ");
         String pass = Main.inp.nextLine();
-        
+
         System.out.print("Enter Email: ");
         String email = Main.inp.nextLine();
-        
-        while(true){
+
+        while (true) {
             String qry = "SELECT * FROM tbl_user WHERE u_email = ?";
             java.util.List<java.util.Map<String, Object>> result = con.fetchRecords(qry, email);
-
-            if (result.isEmpty()) {
-                break;
-            } else {
-                System.out.print("Email already exists, Enter other Email: ");
-                email = Main.inp.nextLine();
-            }
+            if (result.isEmpty()) break;
+            System.out.print("Email already exists, Enter other Email: ");
+            email = Main.inp.nextLine();
         }
-        
+
         System.out.print("Enter Contact Number: ");
         String contact = Main.inp.nextLine();
-        
-        System.out.print("Choose role (1. Admin, 2. Cashier): ");
-        int chooseRole = Main.inp.nextInt();
-        
-        while(chooseRole > 2 || chooseRole < 1){
-            System.out.println("\nInvalid input, Try Agin");
+
+        String chooseRoleStr;
+        while (true) {
             System.out.print("Choose role (1. Admin, 2. Cashier): ");
-            chooseRole = Main.inp.nextInt();
+            chooseRoleStr = Main.inp.nextLine().trim();
+            if (chooseRoleStr.equals("1") || chooseRoleStr.equals("2")) break;
+            System.out.println("Invalid input, try again.");
         }
-        
-        String role = "";
-        if(chooseRole == 1){
-            role = "Admin";
-        }else{
-            role = "Cashier";
+
+        String role = chooseRoleStr.equals("1") ? "Admin" : "Cashier";
+
+        System.out.println("Successfully Added! Role: " + role);
+
+        String hashedPass = con.hashPassword(pass);
+        if (hashedPass == null) {
+            System.out.println("Error hashing password. User not added.");
+            return;
         }
-        
-        System.out.println("Your Successfully Added, Role " +role+ "! Wait for the approaval");
-       
+
         String sql = "INSERT INTO tbl_user (u_fullname, u_username, u_password, u_email, u_contact, u_role, u_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        con.addRecord(sql, fname, uname, pass, email, contact, role, "Pending");
+        con.addRecord(sql, fname, uname, hashedPass, email, contact, role, "Approved");
+
+        String subject = "Your Melynal Trading Account Has Been Approved!";
+        String body = "Hello " + fname + ",\n\n"
+                + "Your account has been approved by the admin.\n"
+                + "You can now log in and start using the system.\n\n"
+                + "Best regards,\n"
+                + "Melynal Trading";
+
+        try {
+            con.sendEmail(email, subject, body);
+            System.out.println("Notification email sent successfully to " + email);
+        } catch (Exception e) {
+            System.out.println("Failed to send email to " + email + ". Error: " + e.getMessage());
+        }
     }
     
     public void approveUser(){
@@ -365,7 +370,6 @@ public class manangeUser {
 
         System.out.println("\nUser approved successfully!");
 
-        // Prepare email
         String subject = "Your MelynAl Trading Account Has Been Approved!";
         String body = String.format(
             "Hello %s,\n\nYour account has been approved by the admin.\nYou can now log in and start using the system.\n\nBest regards,\nMelynAl Trading",
