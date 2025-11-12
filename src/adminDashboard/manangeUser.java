@@ -80,7 +80,7 @@ public class manangeUser {
             return;
         }
 
-        String sqlDelete = "DELETE tbl_user WHERE u_id = ?";
+        String sqlDelete = "DELETE FROM tbl_user WHERE u_id = ?";
         con.deleteRecord(sqlDelete, did);
     }
     

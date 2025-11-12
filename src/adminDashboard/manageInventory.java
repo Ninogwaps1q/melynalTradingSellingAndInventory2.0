@@ -49,7 +49,7 @@ public class manageInventory {
             }
             
             System.out.print("\nDo you want to continue (yes / no): ");
-            res = Main.inp.next();
+            res = Main.inp.nextLine();
         }while(res.equals("yes") || res.equals("1"));
         Main.adminDashboard(adminId);
     }

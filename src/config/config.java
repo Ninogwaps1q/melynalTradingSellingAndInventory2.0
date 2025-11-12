@@ -519,6 +519,7 @@ public class config {
         
         System.out.print("Enter Quantity to Add: ");
         int qty = Main.inp.nextInt();
+        Main.inp.nextLine();
         
         String select = "SELECT p_stock FROM tbl_product WHERE p_id=?";
         String update = "UPDATE tbl_product SET p_stock=? WHERE p_id=?";
@@ -568,6 +569,7 @@ public class config {
         
         System.out.print("Enter Quantity to Remove: ");
         int qty = Main.inp.nextInt();
+        Main.inp.nextLine();
 
         String select = "SELECT p_stock FROM tbl_product WHERE p_id=?";
         String update = "UPDATE tbl_product SET p_stock=? WHERE p_id=?";

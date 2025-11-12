@@ -64,7 +64,7 @@ public class manageSales {
                 default: System.out.println("\nInvalid input, Try Again."); manageSales(uid);
             }
             System.out.print("\nDo you want to continue (yes / no): ");
-            res = Main.inp.next();
+            res = Main.inp.nextLine();
         }while(res.equals("yes") || res.equals("1"));
         Main.adminDashboard(uid);
     }
